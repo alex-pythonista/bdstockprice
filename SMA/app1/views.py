@@ -479,7 +479,7 @@ def historic_data(request):
 
             h_table_dsg = plot(fig, config=config, output_type='div')
             
-            return render(request, "historic_data.html",{'h_table_dsg': h_table_dsg })
+            return render(request, "historic_data.html",{'h_table_dsg': h_table_dsg, 'name': stockcompanies })
             
         except Exception as e:
             print(e)
@@ -525,7 +525,7 @@ def prediction(request):
 
                 fig, config=obj.Pred_Dsg(P_data)
                 pre_dsg = plot(fig, config=config, output_type='div')
-                return render(request, 'predictions.html', {'pre_dsg':pre_dsg})
+                return render(request, 'predictions.html', {'pre_dsg':pre_dsg, 'name': H_data.symbol[0] })
             else:
                 messages.error(request, 'Data is not enough to make Predictions. Please download again!')
                 return redirect('historic_fm')
@@ -543,18 +543,18 @@ def data_download(request):
  
     if request.POST.get("mrsum_btn"):
         # Renaming the result column header
-        M_data.columns = ["SCRIP", "LDCP", "OPEN", "HIGH","LOW", "CURRENT", "CHANGE", "VOLUME"]
- 
+        M_data.columns = ["symbol", "ltp", "open", "high","low", "close"]
         # Disposing 
         response["Content-Disposition"] = "attachment; filename=Market_Summary.csv"
         M_data.to_csv(path_or_buf=response)
     elif request.POST.get("his_btn"):
+        data = H_data.reset_index()
         # Renaming the result column header
-        H_data.columns = ["Date", "Open", "High", "Low","Close","Volume"]
- 
-        # Disposing 
+        selected_columns = ["date", "open", "high", "low","close"]
+
+        data = data[selected_columns]
         response["Content-Disposition"] = "attachment; filename=Historic_Data.csv"
-        H_data.to_csv(path_or_buf=response)
+        data.to_csv(path_or_buf=response)
     elif request.POST.get("pre_btn"):
         # Renaming the result column header
         P_data.columns = ["Date", "Open", "High", "Low","Close"]
