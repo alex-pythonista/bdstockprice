@@ -428,13 +428,16 @@ def stock_name(request):
 
 # View for Stock Searching
 def stock_search(request):
+
+    df = get_current_trade_data()
     
     if request.method == "POST":
         searched = request.POST['searched']
+        matching_symbols = df[df['symbol'].str.contains(searched, na=False)]['symbol'].tolist()
  
-        companies = Stock_Companies.objects.filter( Q(symbol__icontains=searched) | Q(name__icontains=searched) | Q(sectorName__icontains=searched))
+        # companies = Stock_Companies.objects.filter( Q(symbol__icontains=searched) | Q(name__icontains=searched) | Q(sectorName__icontains=searched))
         
-        return render(request, 'stock_search.html', {'searched':searched,'companies':companies})
+        return render(request, 'stock_search.html', {'searched':searched,'companies': matching_symbols})
         
     else:
         return render(request, 'stock_search.html', {})
